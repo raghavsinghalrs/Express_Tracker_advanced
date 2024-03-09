@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-        #signupform{
+        #loginform{
             text-align: center;
             margin: 20%;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Add shadow */
@@ -36,19 +36,23 @@
             flex: 1;
         }
         .login{
-            margin: 10px;
+            font-family: inherit;
+            margin-top: 5px;
+        }
+        a{
+            color: white;
+        }
+        #newaccountbtn{
+            background-color: rgb(112,172,20);
+            margin-top: 10px;
         }
 
     </style>
 </head>
 <body>
-    <div id="signupform">
+    <div id="loginform">
         <form id="form">
             <div id="outer_div">
-                <div class="field">
-                    <label for="name">Name</label>
-                    <input type="text" name="name" id="name" placeholder="Enter your name" required><br>
-                </div>
                 <div class="field">    
                     <label for="email">Email</label>
                     <input type="email" name="email" id="email" placeholder="Enter your mail id" required><br>
@@ -58,15 +62,15 @@
                     <input type="password" id="password" required><br>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-success" id="btn">Sign Up</button>
+                    <button type="button" class="btn btn-primary" id="loginbtn">Log in</button>
                 </div>
                 <div class="login">
-                    <a href="/loginPage.html" >Already have an account?</a>
+                   <button id="newaccountbtn"><a href="/signup_page.html" >Create new account</a></button>
                 </div>
             </div>
         </form>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
-    <script src="signup_page.js"></script>
+    <script src="loginpage.js"></script>
 </body>
 </html>

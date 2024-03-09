@@ -5,6 +5,7 @@ let submit_val = document.getElementById('btn');
 
 submit_val.addEventListener('click', signup);
 
+
 function signup(e){
     e.preventDefault();
     const obj = {
@@ -21,7 +22,6 @@ function signup(e){
         console.log(err);
     })
 }
-
 function clearfields(){
     name_val.value = "";
     email_val.value ="";
