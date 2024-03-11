@@ -16,6 +16,7 @@ function login(e){
         if (data.message === 'Login successful') {
             clearfields();
             alert('Logged in successfully');
+            window.location.href = "/expenses.html"
         } else if (data.message === 'Wrong password') {
             alert('Wrong password');
         } else if (data.message === 'Invalid! Create account') {

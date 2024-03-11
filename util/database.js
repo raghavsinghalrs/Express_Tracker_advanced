@@ -6,4 +6,5 @@ const sequelize = new Sequelize('expenses','root','22sep2001',{
     host: 'localhost'
 });
 
+
 module.exports = sequelize;

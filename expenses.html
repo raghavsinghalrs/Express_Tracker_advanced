@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses</title>
+    <style>
+        .outerdiv {
+            margin-left: 40%;
+            margin-top: 20%;
+        }
+    </style>
+</head>
+<body>
+    <div class="outerdiv">
+        <form>
+            <div>
+            <div>
+                <label for="amount">Expense Amount</label>
+                <input type="number" name="amount" id="amount" min="1" placeholder="Enter amount" required>
+            </div>
+            <div>
+                <label for="desc">Expense Description</label>
+                <input type="text" name="desc" id="desc" placeholder="Enter descripion of your purchase" required>
+            </div>
+            <div>
+                <label for="category">Choose category:</label>
+                <select name="category" id="category">
+                    <option value="Food">food</option>
+                    <option value="fuel">fuel</option>
+                    <option value="cinema">cinema</option>
+                    <option value="electricity">electricity</option>
+                </select>
+            </div>
+            <div>
+                <button type="button" id="add" class="btn btn-secondary btn-lg btn-block">Add Item</button>
+            </div>
+            </div>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <script src="expenses.js"></script>
+</body>
+</html>

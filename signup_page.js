@@ -17,6 +17,7 @@ function signup(e){
     .then(res => {
         clearfields();
         console.log(res);
+        window.location.href = "/loginPage.html"
     })
     .catch(err => {
         console.log(err);
