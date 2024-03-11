@@ -6,8 +6,18 @@
     <title>Expenses</title>
     <style>
         .outerdiv {
-            margin-left: 40%;
-            margin-top: 20%;
+            text-align: center;
+            margin-left: 20%;
+            margin-right: 20%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* Add shadow */
+            padding: 20px;
+        }
+        .input {
+            margin-bottom: 10px;
+        }
+        .table_div {
+            margin: 40%;
+            margin-top: 2%;
         }
     </style>
 </head>
@@ -15,15 +25,15 @@
     <div class="outerdiv">
         <form>
             <div>
-            <div>
+            <div class="input">
                 <label for="amount">Expense Amount</label>
                 <input type="number" name="amount" id="amount" min="1" placeholder="Enter amount" required>
             </div>
-            <div>
+            <div class="input">
                 <label for="desc">Expense Description</label>
                 <input type="text" name="desc" id="desc" placeholder="Enter descripion of your purchase" required>
             </div>
-            <div>
+            <div class="input">
                 <label for="category">Choose category:</label>
                 <select name="category" id="category">
                     <option value="Food">food</option>
@@ -31,12 +41,26 @@
                     <option value="cinema">cinema</option>
                     <option value="electricity">electricity</option>
                 </select>
-            </div>
+            </div><br>
             <div>
                 <button type="button" id="add" class="btn btn-secondary btn-lg btn-block">Add Item</button>
             </div>
             </div>
         </form>
+    </div>
+    <div class="table_div">
+        <table id="data-table">
+            <thead>
+              <tr>
+                <th class="column">#</th>
+                <th class="column">Amount</th>
+                <th class="column">Description</th>
+                <th class="column">Category</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
     <script src="expenses.js"></script>

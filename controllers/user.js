@@ -61,8 +61,19 @@ const addITEM = async(req,res) => {
     }
 }
 
+const getITEM = async(req,res) => {
+    try{
+        const data = await Expense.findAll();
+        res.status(200).json({data});
+    }catch(err){
+        console.error("Error occurred while counting rows:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 module.exports = {
     newuser,
     loginuser,
-    addITEM
+    addITEM,
+    getITEM
 }
