@@ -53,8 +53,8 @@ const addITEM = async(req,res) => {
         const amount = req.body.amount;
         const description = req.body.description;
         const category = req.body.category;
-        await Expense.create({amount : amount, description : description, category : category});
-        res.status(201).json({message: "Your expenses added!"});
+        const data = await Expense.create({amount : amount, description : description, category : category});
+        res.status(201).json({newItem : data});
     }catch(err){
         console.log(err);
         res.status(500).json({ error: "Internal Server Error" });
@@ -71,9 +71,20 @@ const getITEM = async(req,res) => {
     }
 }
 
+const deleteITEM = async(req,res) => {
+    try{
+        const id = req.params.id;
+        await Expense.destroy({where: {id:id}});
+        res.status(200).json("Deleted successfully");
+    }catch(err){
+        console.log(err);
+    }
+}
+
 module.exports = {
     newuser,
     loginuser,
     addITEM,
-    getITEM
+    getITEM,
+    deleteITEM
 }

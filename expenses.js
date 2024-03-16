@@ -2,13 +2,36 @@ let amt = document.getElementById('amount');
 let desc = document.getElementById('desc');
 let category = document.getElementById('category');
 let button = document.getElementById('add');
+let list = document.getElementById('result');
 
-button.addEventListener('click',addItem);
+button.addEventListener('click',addexpense);
+list.addEventListener('click',deleteexpense);
 document.addEventListener('DOMContentLoaded', () => {
     getitem();
   });
 
-function addItem(e){
+function clear_func(){
+    amt.value ="";
+    desc.value="";
+    category.value ="";
+}
+
+function deleteexpense(e){
+    if(e.target.id=='del'){
+        var x = e.target.parentElement;
+        console.log(x.id);
+        axios.delete(`http://localhost:3000/deleteitem/${x.id}`)
+        .then(res => {
+            console.log(res);
+            list.removeChild(x);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+}
+
+function addexpense(e){
     e.preventDefault();
     const obj = {
         'amount' : amt.value,
@@ -17,22 +40,23 @@ function addItem(e){
     }
     axios.post('http://localhost:3000/addItem',obj)
     .then(res => {
-        const table = document.getElementById('data-table');
-        // table.innerHTML = '';
-        const row = table.insertRow();
-        const cell1 = row.insertCell(0);
-        const cell2 = row.insertCell(1);
-        const cell3 = row.insertCell(2);
-        const cell4 = row.insertCell(3);
-        cell1.innerHTML = '1';
-        cell2.innerHTML = amt.value;
-        cell3.innerHTML = desc.value;
-        cell4.innerHTML = category.value;
-        amt.value ="";
-        desc.value="";
-        category.value ="";
         console.log(res);
-
+        const result = res.data.newItem;
+        clear_func();
+        var li = document.createElement('li');
+        li.id = result.id;
+        li.appendChild(document.createTextNode(result.amount));
+        li.appendChild(document.createTextNode(' - '));
+        li.appendChild(document.createTextNode(result.description));
+        li.appendChild(document.createTextNode(' - '));
+        li.appendChild(document.createTextNode(result.category));
+        li.appendChild(document.createTextNode(' '));
+        var deletebtn = document.createElement('button');
+        deletebtn.id = 'del';
+        deletebtn.textContent='Delete Expense';
+        deletebtn.style.borderColor = "red";
+        li.appendChild(deletebtn);
+        list.appendChild(li);
     })
     .catch(err => {
         console.log(err);
@@ -45,22 +69,28 @@ function getitem(){
         console.log(res);
         const data = res.data;
         let len = data.data.length;
-        const table = document.getElementById('data-table');
         for (let i = 0; i < len; i++) {
-            const row = table.insertRow();
-            const cell1 = row.insertCell(0);
-            const cell2 = row.insertCell(1);
-            const cell3 = row.insertCell(2);
-            const cell4 = row.insertCell(3);
-    
-            cell1.innerHTML = i;
-            cell2.innerHTML = data.data[i].amount;
-            cell3.innerHTML = data.data[i].description;
-            cell4.innerHTML = data.data[i].category;
-          }
+            var li = document.createElement('li');
+            li.id = data.data[i].id;
+            li.appendChild(document.createTextNode(data.data[i].amount));
+            li.appendChild(document.createTextNode(' - '));
+            li.appendChild(document.createTextNode(data.data[i].description));
+            li.appendChild(document.createTextNode(' - '));
+            li.appendChild(document.createTextNode(data.data[i].category));
+            li.appendChild(document.createTextNode(' '));
+            var deletebtn = document.createElement('button');
+            deletebtn.id = 'del';
+            deletebtn.textContent='Delete Expense';
+            deletebtn.style.borderColor = "red";
+            li.appendChild(deletebtn);
+            list.appendChild(li);
+        }
     })
     .catch(err => {
         console.log(err);
     })
+
+
+
 }
 

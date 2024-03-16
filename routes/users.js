@@ -8,5 +8,6 @@ router.post('/add_user',Usercontroller.newuser);
 router.post('/login',Usercontroller.loginuser);
 router.post('/addItem',Usercontroller.addITEM);
 router.get('/getitem',Usercontroller.getITEM);
-
+router.delete('/deleteitem/:id',Usercontroller.deleteITEM);
+ 
 module.exports = router;
