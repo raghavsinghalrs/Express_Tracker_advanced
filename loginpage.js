@@ -16,6 +16,7 @@ function login(e){
         if (data.message === 'Login successful') {
             clearfields();
             alert('Logged in successfully');
+            localStorage.setItem('token', data.token);
             window.location.href = "/expenses.html"
         } else if (data.message === 'Wrong password') {
             alert('Wrong password');
@@ -24,7 +25,6 @@ function login(e){
         } else {
             alert('An error occurred. Please try again later');
         }
-        console.log(res);
     })
     .catch(err => {
         console.log(err);

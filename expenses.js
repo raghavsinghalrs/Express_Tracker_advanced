@@ -38,7 +38,8 @@ function addexpense(e){
         'description' : desc.value,
         'category': category.value
     }
-    axios.post('http://localhost:3000/addItem',obj)
+    const token = localStorage.getItem('token');
+    axios.post('http://localhost:3000/addItem',obj,{headers : {'Authorization':token}})
     .then(res => {
         console.log(res);
         const result = res.data.newItem;
@@ -64,7 +65,8 @@ function addexpense(e){
 }
 
 function getitem(){
-    axios.get('http://localhost:3000/getitem')
+    const token = localStorage.getItem('token');
+    axios.get('http://localhost:3000/getitem', {headers : {'Authorization':token}})
     .then(res => {
         console.log(res);
         const data = res.data;
