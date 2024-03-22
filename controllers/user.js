@@ -77,11 +77,18 @@ const getITEM = async(req,res) => {
 
 const deleteITEM = async(req,res) => {
     try{
-        const id = req.params.id;
-        await Expense.destroy({where: {id:id}});
-        res.status(200).json("Deleted successfully");
-    }catch(err){
-        console.log(err);
+        const itemid = req.params.id;
+        const userid = req.user.id;
+
+        const item = await Expense.findOne({ where: { id: itemid, userId: userid } });
+        if (!item) {
+            return res.status(404).json({ error: "Item not found or you don't have permission to delete it." });
+        }
+        await item.destroy();
+        res.status(200).json({ message: "Item deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting item:", err);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 }
 

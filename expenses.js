@@ -20,7 +20,8 @@ function deleteexpense(e){
     if(e.target.id=='del'){
         var x = e.target.parentElement;
         console.log(x.id);
-        axios.delete(`http://localhost:3000/deleteitem/${x.id}`)
+        const token = localStorage.getItem('token');
+        axios.delete(`http://localhost:3000/deleteitem/${x.id}`,{headers : {'Authorization':token}})
         .then(res => {
             console.log(res);
             list.removeChild(x);
