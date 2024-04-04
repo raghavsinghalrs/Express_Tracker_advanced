@@ -3,6 +3,7 @@ let desc = document.getElementById('desc');
 let category = document.getElementById('category');
 let button = document.getElementById('add');
 let list = document.getElementById('result');
+let list2 = document.getElementById('list');
 let premiumbutton = document.getElementById('premium');
 
 button.addEventListener('click',addexpense);
@@ -72,6 +73,10 @@ function getitem(){
     .then(res => {
         console.log(res);
         const data = res.data;
+        const premiumdata = res.data.premiumuserdata.ispremiumuser;
+        if(premiumdata){
+            premium();
+        }
         let len = data.data.length;
         for (let i = 0; i < len; i++) {
             var li = document.createElement('li');
@@ -119,6 +124,7 @@ premiumbutton.onclick = async(e) => {
                     }
                     await axios.post('http://localhost:3000/updatetransactionstatus',obj,{ headers: { 'Authorization': token }});
                     alert('You are a premium user now');
+                    await premium();
                 }
             };
             console.log("Razorpay Options:", options);
@@ -139,5 +145,44 @@ premiumbutton.onclick = async(e) => {
             console.error(error);
         }
     }
+
+    async function premium(){
+        var premiumButton = document.getElementById('premium');
+        var newText = document.createTextNode('Premium User');
+        var newTextContainer = document.createElement('div');
+        newTextContainer.appendChild(newText);
+        var leaderboardButton = document.createElement('button');
+        leaderboardButton.textContent = 'Show Leaderboard'; 
+        leaderboardButton.id = 'leaderboard';
+        premiumButton.parentNode.replaceChild(newTextContainer, premiumButton);
+        newTextContainer.parentNode.insertBefore(leaderboardButton, newTextContainer.nextSibling);
+    
+        document.getElementById('leaderboard').addEventListener('click', async () => {
+            try {
+                const response = await axios.get('http://localhost:3000/leaderboard');
+                console.log(response);
+                await show_leaderboard(response);
+            } catch (err) {
+                console.log(err);
+            }
+        });
+
+        async function show_leaderboard(data){
+            console.log(data.data.leaderboard);
+            list2.innerHTML = '';
+            let heading = document.createElement('h2');
+            heading.textContent = 'Leaderboard';
+            list2.appendChild(heading);
+            for(let i=0;i<data.data.leaderboard.length;i++){
+                let li = document.createElement('li');
+                li.appendChild(document.createTextNode(data.data.leaderboard[i].name));
+                li.appendChild(document.createTextNode('-'));
+                li.appendChild(document.createTextNode(data.data.leaderboard[i].totalAmount));
+                list2.appendChild(li);
+            }
+
+        }
+    }
+    
     
 

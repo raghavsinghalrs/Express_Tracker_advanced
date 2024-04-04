@@ -13,5 +13,6 @@ router.get('/getitem',authentication.authenticate,Usercontroller.getITEM);
 router.delete('/deleteitem/:id',authentication.authenticate,Usercontroller.deleteITEM);
 router.get('/premiummembership',authentication.authenticate,purchaseController.purchasePremium);
 router.post('/updatetransactionstatus',authentication.authenticate,purchaseController.updateTransactionStatus);
+router.get('/leaderboard',Usercontroller.leaderboarddata);
  
 module.exports = router;

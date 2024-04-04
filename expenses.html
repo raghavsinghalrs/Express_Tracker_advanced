@@ -42,16 +42,19 @@
                     <option value="electricity">electricity</option>
                 </select>
             </div><br>
-            <div>
-                <button type="button" id="add" class="btn btn-secondary btn-lg btn-block">Add Item</button>
-            </div>
+            <div id="buttons">
+                <button type="button" id="add" class="btn btn-secondary btn-lg btn-block">Add Item</button><button id="premium" type="submit">Buy premium</button>
             </div>
         </form>
     </div>
-    <div><button id="premium" type="submit">Buy premium</button></div>
-    <div style="margin-left: 40%; margin-top: 5%;">
+    <!-- <div id="leaderboard_btn"></div> -->
+    <div>
         <ul id="result"></ul>
     </div>
+    <div>
+        <ul id="list"></ul>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="expenses.js"></script>

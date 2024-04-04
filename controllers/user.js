@@ -2,6 +2,7 @@ const User = require('../models/users');
 const Expense = require('../models/expense');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Sequelize = require('sequelize');
 const newuser = async(req,res) => {
     try{
         const name = req.body.name;
@@ -68,7 +69,9 @@ const getITEM = async(req,res) => {
     try{
         const data = await Expense.findAll({where : {userId : req.user.id}});
         console.log("data",data);
-        res.status(200).json({data});
+        const premiumuserdata = await User.findByPk(req.user.id);
+        console.log(premiumuserdata)
+        res.status(200).json({data,premiumuserdata : premiumuserdata });
     }catch(err){
         console.error("Error occurred while counting rows:", err);
         res.status(500).json({ error: "Internal Server Error" });
@@ -92,10 +95,35 @@ const deleteITEM = async(req,res) => {
     }
 }
 
+const leaderboarddata = async (req, res) => {
+    try {
+        const data = await User.findAll({
+            attributes: [
+                'name',
+                [Sequelize.fn('SUM', Sequelize.col('expenses.amount')), 'totalAmount']
+            ],
+            include: [{
+                model: Expense,
+                attributes: []
+            }],
+            group: ['user.id'],
+            raw: true,
+            order: [[Sequelize.literal('totalAmount DESC')]] // Sort by totalAmount in descending order
+        });
+        res.status(200).json({
+            leaderboard: data
+        });
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+
 module.exports = {
     newuser,
     loginuser,
     addITEM,
     getITEM,
-    deleteITEM
+    deleteITEM,
+    leaderboarddata
 }
