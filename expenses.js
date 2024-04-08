@@ -177,10 +177,9 @@ premiumbutton.onclick = async(e) => {
                 let li = document.createElement('li');
                 li.appendChild(document.createTextNode(data.data.leaderboard[i].name));
                 li.appendChild(document.createTextNode('-'));
-                li.appendChild(document.createTextNode(data.data.leaderboard[i].totalAmount));
+                li.appendChild(document.createTextNode(data.data.leaderboard[i].totalexpense));
                 list2.appendChild(li);
             }
-
         }
     }
     

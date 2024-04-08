@@ -16,6 +16,6 @@ const Expense = sequelize.define('expense',{
     category: {
         type: Sequelize.STRING
     }
-
 });
+
 module.exports = Expense;

@@ -3,6 +3,7 @@ const Expense = require('../models/expense');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Sequelize = require('sequelize');
+
 const newuser = async(req,res) => {
     try{
         const name = req.body.name;
@@ -56,14 +57,31 @@ const loginuser = async(req,res) => {
 const addITEM = async(req, res) => {
     try {
         const { amount, description, category } = req.body;
-        const newItem = await Expense.create({ amount: amount, description: description, category: category, userId : req.user.id});
+
+        const newItem = await Expense.create({
+            amount: amount,
+            description: description,
+            category: category,
+            userId: req.user.id
+        });
+
+        const user = await User.findByPk(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        user.totalexpense = (user.totalexpense || 0) + Number(amount);
+        
+        await user.save();
 
         res.status(201).json({ newItem });
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
+
 
 const getITEM = async(req,res) => {
     try{
@@ -97,27 +115,14 @@ const deleteITEM = async(req,res) => {
 
 const leaderboarddata = async (req, res) => {
     try {
-        const data = await User.findAll({
-            attributes: [
-                'name',
-                [Sequelize.fn('SUM', Sequelize.col('expenses.amount')), 'totalAmount']
-            ],
-            include: [{
-                model: Expense,
-                attributes: []
-            }],
-            group: ['user.id'],
-            raw: true,
-            order: [[Sequelize.literal('totalAmount DESC')]] // Sort by totalAmount in descending order
+        const users = await User.findAll({
+            order: [['totalexpense', 'DESC']]
         });
-        res.status(200).json({
-            leaderboard: data
-        });
+        res.status(201).json({leaderboard : users});
     } catch (err) {
         console.log(err);
     }
 }
-
 
 module.exports = {
     newuser,
