@@ -2,7 +2,7 @@ const User = require('../models/users');
 const Expense = require('../models/expense');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Sequelize = require('sequelize');
+const Sequelize = require('../util/database');
 
 const newuser = async(req,res) => {
     try{
@@ -54,7 +54,8 @@ const loginuser = async(req,res) => {
     } 
 }
 
-const addITEM = async(req, res) => {
+const addITEM = async (req, res) => {
+    const t = await Sequelize.transaction(); 
     try {
         const { amount, description, category } = req.body;
 
@@ -63,24 +64,30 @@ const addITEM = async(req, res) => {
             description: description,
             category: category,
             userId: req.user.id
-        });
+        }, { transaction: t }); 
 
-        const user = await User.findByPk(req.user.id);
+        const user = await User.findByPk(req.user.id, { transaction: t }); 
 
         if (!user) {
+            await t.rollback(); 
             return res.status(404).json({ error: "User not found" });
         }
 
         user.totalexpense = (user.totalexpense || 0) + Number(amount);
-        
-        await user.save();
+
+        await user.save({ transaction: t }); 
+
+        await t.commit(); 
 
         res.status(201).json({ newItem });
+
     } catch (err) {
+        await t.rollback();
         console.log(err);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 
 const getITEM = async(req,res) => {
@@ -97,17 +104,31 @@ const getITEM = async(req,res) => {
 }
 
 const deleteITEM = async(req,res) => {
+    const t = await Sequelize.transaction(); 
     try{
         const itemid = req.params.id;
         const userid = req.user.id;
 
-        const item = await Expense.findOne({ where: { id: itemid, userId: userid } });
+        const item = await Expense.findOne({ where: { id: itemid, userId: userid } }, { transaction: t });
+        const user = await User.findByPk(req.user.id, { transaction: t }); 
+
         if (!item) {
+            t.rollback();
             return res.status(404).json({ error: "Item not found or you don't have permission to delete it." });
         }
+
+        if (!user) {
+            await t.rollback(); 
+            return res.status(404).json({ error: "User not found" });
+        }
+        user.totalexpense = user.totalexpense - item.amount;
+        await user.save({ transaction: t }); 
         await item.destroy();
+
+        await t.commit(); 
         res.status(200).json({ message: "Item deleted successfully" });
     } catch (err) {
+        await t.rollback(); 
         console.error("Error deleting item:", err);
         res.status(500).json({ error: "Internal Server Error" });
     }
