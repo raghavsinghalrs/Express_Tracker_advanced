@@ -15,18 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
 function clear_func(){
     amt.value ="";
     desc.value="";
-    category.value ="";
 }
 
 function deleteexpense(e){
     if(e.target.id=='del'){
         var x = e.target.parentElement;
-        console.log(x.id);
         const token = localStorage.getItem('token');
         axios.delete(`http://localhost:3000/deleteitem/${x.id}`,{headers : {'Authorization':token}})
-        .then(res => {
-            console.log(res);
+        .then(async res => {
             list.removeChild(x);
+            const response = await axios.get('http://localhost:3000/leaderboard');
+            await show_leaderboard(response);
         })
         .catch(err => {
             console.log(err);
@@ -44,7 +43,6 @@ function addexpense(e){
     const token = localStorage.getItem('token');
     axios.post('http://localhost:3000/addItem',obj,{headers : {'Authorization':token}})
     .then(res => {
-        console.log(res);
         const result = res.data.newItem;
         clear_func();
         var li = document.createElement('li');
@@ -71,7 +69,6 @@ function getitem(){
     const token = localStorage.getItem('token');
     axios.get('http://localhost:3000/getitem', {headers : {'Authorization':token}})
     .then(res => {
-        console.log(res);
         const data = res.data;
         const premiumdata = res.data.premiumuserdata.ispremiumuser;
         if(premiumdata){
@@ -105,18 +102,12 @@ premiumbutton.onclick = async(e) => {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get('http://localhost:3000/premiummembership', { headers: { 'Authorization': token } });
-            console.log(response.data);
-            console.log(response.data.order.id,"order id");
-            console.log(response.data.key_id,"key id");
             const orderId = response.data.order.id;
             const keyId = response.data.key_id;
             const options = {
                 "key": keyId,
                 "order_id": orderId,
                 "handler": async function (response) {
-                    console.log(response,"handler");
-                    console.log(response.razorpay_payment_id,"razorpay_payment_id");
-                    console.log(orderId,"orderID");
                     const paymentId = response.razorpay_payment_id;
                     const obj = {
                         order_id: orderId,
@@ -127,12 +118,9 @@ premiumbutton.onclick = async(e) => {
                     await premium();
                 }
             };
-            console.log("Razorpay Options:", options);
             let rzp1 = new Razorpay(options);
-            console.log("Razorpay Instance:", rzp1);
             rzp1.open();
             rzp1.on('payment.failed', async function (response) {
-                console.log(response)
                 alert('Payment Failed. Your order status will be updated to FAILED.');
                 try{
                     await axios.post('http://localhost:3000/updatetransactionstatus', { order_id: orderId, payment_id: null }, { headers: { 'Authorization': token } });
@@ -160,26 +148,26 @@ premiumbutton.onclick = async(e) => {
         document.getElementById('leaderboard').addEventListener('click', async () => {
             try {
                 const response = await axios.get('http://localhost:3000/leaderboard');
-                console.log(response);
                 await show_leaderboard(response);
             } catch (err) {
                 console.log(err);
             }
         });
 
-        async function show_leaderboard(data){
-            console.log(data.data.leaderboard);
-            list2.innerHTML = '';
-            let heading = document.createElement('h2');
-            heading.textContent = 'Leaderboard';
-            list2.appendChild(heading);
-            for(let i=0;i<data.data.leaderboard.length;i++){
-                let li = document.createElement('li');
-                li.appendChild(document.createTextNode(data.data.leaderboard[i].name));
-                li.appendChild(document.createTextNode('-'));
-                li.appendChild(document.createTextNode(data.data.leaderboard[i].totalexpense));
-                list2.appendChild(li);
-            }
+    }
+    
+    async function show_leaderboard(data){
+        console.log("show data: ", data.data.leaderboard);
+        list2.innerHTML = '';
+        let heading = document.createElement('h2');
+        heading.textContent = 'Leaderboard';
+        list2.appendChild(heading);
+        for(let i=0;i<data.data.leaderboard.length;i++){
+            let li = document.createElement('li');
+            li.appendChild(document.createTextNode(data.data.leaderboard[i].name));
+            li.appendChild(document.createTextNode('-'));
+            li.appendChild(document.createTextNode(data.data.leaderboard[i].totalexpense));
+            list2.appendChild(li);
         }
     }
     
