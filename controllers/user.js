@@ -3,6 +3,47 @@ const Expense = require('../models/expense');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Sequelize = require('../util/database');
+const brevo = require('@getbrevo/brevo');
+
+
+const forgot = async(req,res) => {
+    try{
+        const email = req.body.email;
+        const user_present = await User.findOne({where :  { email: email }});
+        if(user_present){
+            console.log('User found:', user_present);
+            console.log('brevo module:', brevo);
+
+            if (brevo && brevo.ApiClient && brevo.ApiClient.instance) {
+
+                let defaultClient = brevo.ApiClient.instance;
+                let apiKey = defaultClient.authentications['api-key'];
+                apiKey.apiKey = process.env.API_KEY
+                let apiInstance = new brevo.TransactionalEmailsApi();
+                let sendSmtpEmail = new brevo.SendSmtpEmail();
+                sendSmtpEmail.subject = "My {{params.subject}}";
+                sendSmtpEmail.htmlContent = "<html><body><h1>Common: This is my first transactional email {{params.parameter}}</h1></body></html>";
+                sendSmtpEmail.sender = { "name": "raghav", "email": "22sep2001.rs@gmail.com" };
+                sendSmtpEmail.to = [
+                    { "email": "22sep2001.rs@gmail.com", "name": "sample-name" }
+                ];
+                sendSmtpEmail.headers = { "Some-Custom-Name": "unique-id-1234" };
+                sendSmtpEmail.params = { "parameter": "My param value", "subject": "common subject" };
+                apiInstance.sendTransacEmail(sendSmtpEmail).then(function (data) {
+                    console.log('API called successfully. Returned data: ' + JSON.stringify(data));
+                    res.status(201).json({message : 'Success'});
+                  }, function (error) {
+                    console.error(error);
+                });
+            } else {
+                throw new Error('brevo.ApiClient is not available');
+            }
+        }
+    }catch(err){
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 const newuser = async(req,res) => {
     try{
@@ -151,5 +192,6 @@ module.exports = {
     addITEM,
     getITEM,
     deleteITEM,
-    leaderboarddata
+    leaderboarddata,
+    forgot
 }
