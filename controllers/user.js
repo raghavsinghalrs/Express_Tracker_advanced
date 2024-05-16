@@ -1,39 +1,51 @@
 const User = require('../models/users');
 const Expense = require('../models/expense');
+const forgot_password = require('../models/forgotpassword_requests');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Sequelize = require('../util/database');
-var SibApiV3Sdk = require('sib-api-v3-sdk');
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.API_KEY;
+const nodemailer = require('nodemailer');
+const { v4: uuidv4 } = require('uuid');
 
 const forgot = async (req, res) => {
     try {
         const email = req.body.email;
+        console.log(email);
         const user_present = await User.findOne({ where: { email: email } });
+        console.log(user_present);
         if(user_present){
-            const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-            const sender = {
-                email : '22sep2001.rs@gmail.com',
-                name : 'PAT CUMMINS',
-            };
-            const reciever = [
-                {
-                    email : email,
+            const data = await forgot_password.create({
+                id : uuidv4(), 
+                isactive : true,
+                userId: req.user.id,
+            });
+            const transporter = nodemailer.createTransport({
+                host : 'smtp.gmail.com',
+                port: 587,
+                secure: false, 
+                auth: {
+                    user: "22sep2001.rs@gmail.com",
+                    pass: "kpgn mvcd fobf qfzj",
                 }
-            ];
+            })
             try{
-                const sendemail = await apiInstance.sendTransacEmail({
-                    sender,
-                    to : reciever,
-                    subject : 'Testemail',
-                    textContent : 'Testemail',
-                });
-                return res.send(sendemail);
+                const info = await transporter.sendMail({
+                    from: '"Maddison Foo Koch 👻" <22sep2001.rs@gmail.com>', // sender address
+                    to: "22sep2001.rs@gmail.com", // list of receivers
+                    subject: "Hello ✔", // Subject line
+                    text: "Hello world?", // plain text body
+                    html: "<b>Hello world?</b>", // html body
+                  });
+                
+                  console.log("Message sent: %s", info.messageId);
+                  res.status(201).json({message : 'Message sent'});
             }catch(err){
                 console.log(err);
+                res.status(401).json({ error: "Internal Server Error" });
             }
+
+        }else{
+            res.status(500).json({message : 'User not found'});
         }
     } catch (err) {
         console.log(err);
@@ -41,49 +53,28 @@ const forgot = async (req, res) => {
     }
 }
 
+const changepassword = async(req,res) => {
+    const uuid = req.params.uuid;
+    const ispresent = await forgot_password.findOne({where : {id : uuid}});
+    if(ispresent && ispresent.isactive){
+        try{
+            return res.redirect(`http://localhost:5500/new_password.html?email=${uuid}`);
+        }catch(err){
+            console.log(err);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+    else{
+        return res.json({message : 'Either uuid is not present or it is not active'})
+    }
+}
 
-// const forgot = async(req,res) => {
+// const updatepassword = async(req,res) => {
 //     try{
-//         const email = req.body.email;
-//         const user_present = await User.findOne({where :  { email: email }});
-//         if(user_present){
-//             console.log('User found:', user_present);
-//             console.log('brevo module:', brevo);
-//             const apiInstance = new brevo.TransactionalEmailsApi();
-//             const apiKey = new apiInstance.authentications['apiKey'];
-//             apiKey.apiKey = process.env.API_KEY;
-//             if(!process.env.API_KEY){
-//                 return;
-//             }
-//             const sendSmtpEmail = new brevo.SendSmtpEmail();
-//             sendSmtpEmail.subject = "My {{params.subject}}";
-//             sendSmtpEmail.htmlContent = "<html><body><h1>Common: This is my first transactional email {{params.parameter}}</h1></body></html>";
-//             sendSmtpEmail.sender = { "name": "raghav", "email": "22sep2001.rs@gmail.com" };
-//             sendSmtpEmail.to = [
-//                     { "email": "22sep2001.rs@gmail.com", "name": "sample-name" }
-//                 ];
-//             sendSmtpEmail.headers = { "Some-Custom-Name": "unique-id-1234" };
-//             sendSmtpEmail.params = { "parameter": "My param value", "subject": "common subject" };
-//             if(req.body?.attachments?.length){
-//                 sendSmtpEmail.attachment = attachments;
-//             }
-//             if(req.body?.cc&&req.body?.cc?.length){
-//                 sendSmtpEmail.cc = cc;
-//             }
-//             if(req.body?.bcc && req.body?.bcc?.length){
-//                 sendSmtpEmail.bcc = bcc;
-//             }
-//             const response = await apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data){
-//                 console.log('API called successfully. Returned data:'+ JSON.stringify(data));
-//                 res.status(201).json({message : 'SUCCESS'});
-//             },function(err){
-//                 console.log(err);
-//             })
-//             return response;
-//         }
+//         const password = req.body.password;
+//         const 
 //     }catch(err){
 //         console.log(err);
-//         res.status(500).json({ error: "Internal Server Error" });
 //     }
 // }
 
@@ -235,5 +226,7 @@ module.exports = {
     getITEM,
     deleteITEM,
     leaderboarddata,
-    forgot
+    forgot,
+    changepassword,
+    // updatepassword
 }
