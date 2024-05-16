@@ -25,7 +25,7 @@ const forgot = async (req, res) => {
                 secure: false, 
                 auth: {
                     user: "22sep2001.rs@gmail.com",
-                    pass: "kpgn mvcd fobf qfzj",
+                    pass: "",
                 }
             })
             try{
