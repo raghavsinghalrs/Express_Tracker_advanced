@@ -9,7 +9,7 @@ async function forgot(e){
         'email' : email.value
     }
     const token = localStorage.getItem('token');
-    axios.post('http://localhost:3000/forgotpassword',obj,{ headers: { 'Authorization': token } })
+    axios.post('http://localhost:3000/forgotpassword',obj)
     .then(res => {
         console.log(res);
         email.value = '';

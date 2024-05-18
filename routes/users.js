@@ -14,8 +14,8 @@ router.delete('/deleteitem/:id',authentication.authenticate,Usercontroller.delet
 router.get('/premiummembership',authentication.authenticate,purchaseController.purchasePremium);
 router.post('/updatetransactionstatus',authentication.authenticate,purchaseController.updateTransactionStatus);
 router.get('/leaderboard',Usercontroller.leaderboarddata);
-router.post('/forgotpassword',authentication.authenticate,Usercontroller.forgot);
+router.post('/forgotpassword',Usercontroller.forgot);
 router.get('/resetpassword/:uuid',Usercontroller.changepassword);
-// router.post('/updatepassword',Usercontroller.updatepassword);
+router.post('/updatepassword',Usercontroller.updatepassword);
  
 module.exports = router;

@@ -10,42 +10,31 @@ const { v4: uuidv4 } = require('uuid');
 const forgot = async (req, res) => {
     try {
         const email = req.body.email;
-        console.log(email);
         const user_present = await User.findOne({ where: { email: email } });
-        console.log(user_present);
-        if(user_present){
+        const fetching_uuid = await forgot_password.findOne({where : {userId : user_present.id}});
+        if(!fetching_uuid){
             const data = await forgot_password.create({
                 id : uuidv4(), 
                 isactive : true,
-                userId: req.user.id,
+                userId: user_present.id
             });
-            const transporter = nodemailer.createTransport({
-                host : 'smtp.gmail.com',
-                port: 587,
-                secure: false, 
-                auth: {
-                    user: "22sep2001.rs@gmail.com",
-                    pass: "kpgn mvcd fobf qfzj",
-                }
-            })
-            try{
-                const info = await transporter.sendMail({
-                    from: '"Maddison Foo Koch 👻" <22sep2001.rs@gmail.com>', // sender address
-                    to: "22sep2001.rs@gmail.com", // list of receivers
-                    subject: "Hello ✔", // Subject line
-                    text: "Hello world?", // plain text body
-                    html: "<b>Hello world?</b>", // html body
-                  });
-                
-                  console.log("Message sent: %s", info.messageId);
-                  res.status(201).json({message : 'Message sent'});
-            }catch(err){
-                console.log(err);
+            const ans = await sendmail(data.id);
+            if(ans){
+                res.status(201).json({message : 'Message sent'})
+            }else{
+                res.status(401).json({ error: "Internal Server Error" });
+            }
+        }
+        else if(user_present && fetching_uuid.isactive){
+            const ans = await sendmail(fetching_uuid.id);
+            if(ans){
+                res.status(201).json({message : 'Message sent'})
+            }else{
                 res.status(401).json({ error: "Internal Server Error" });
             }
 
         }else{
-            res.status(500).json({message : 'User not found'});
+            res.status(500).json({message : 'Either User not found or you have already changed your password'});
         }
     } catch (err) {
         console.log(err);
@@ -53,15 +42,42 @@ const forgot = async (req, res) => {
     }
 }
 
+async function sendmail(uuid) {
+    const transporter = nodemailer.createTransport({
+        host : 'smtp.gmail.com',
+        port: 587,
+        secure: false, 
+        auth: {
+            user: "22sep2001.rs@gmail.com",
+            pass: "kpgn mvcd fobf qfzj",
+        }
+    });
+    try{
+        const info = await transporter.sendMail({
+            from: '"Admin👻" <22sep2001.rs@gmail.com>',
+            to: "22sep2001.rs@gmail.com",
+            subject: "Reset password",
+            text: `http://localhost:3000/resetpassword/${uuid}`, 
+          });
+        
+          console.log("Message sent: %s", info.messageId);
+          return true;
+    }catch(err){
+        console.log(err);
+        return false;
+    }
+
+}
+
 const changepassword = async(req,res) => {
     const uuid = req.params.uuid;
     const ispresent = await forgot_password.findOne({where : {id : uuid}});
     if(ispresent && ispresent.isactive){
         try{
-            return res.redirect(`http://localhost:5500/new_password.html?email=${uuid}`);
+            res.redirect(`http://localhost:5500/new_password.html?uuid=${uuid}`);
         }catch(err){
             console.log(err);
-            return res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ error: "Internal Server Error" });
         }
     }
     else{
@@ -69,14 +85,28 @@ const changepassword = async(req,res) => {
     }
 }
 
-// const updatepassword = async(req,res) => {
-//     try{
-//         const password = req.body.password;
-//         const 
-//     }catch(err){
-//         console.log(err);
-//     }
-// }
+const updatepassword = async(req,res) => {
+    try{
+        const password = req.body.password;
+        const uuid = req.body.uuid;
+        const user = await forgot_password.findOne({where : {id : uuid}});
+        const existingUser = await User.findOne({where :  { id: user.userId }});
+        if (existingUser) {
+            const saltrounds = 10;
+            bcrypt.hash(password,saltrounds,async(err,hash) => {
+                console.log(err);
+                await User.update({password: hash}, {where : {id : existingUser.id}});
+                res.status(201).json({message: "Password Updated Successfully"});
+            })
+            await forgot_password.update({isactive : false}, {where : {id : uuid}});
+        }else{
+            res.status(501).json({ error: "User not found" });
+        }
+    }catch(err){
+        console.log(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 const newuser = async(req,res) => {
     try{
@@ -228,5 +258,5 @@ module.exports = {
     leaderboarddata,
     forgot,
     changepassword,
-    // updatepassword
+    updatepassword
 }
