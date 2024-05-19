@@ -13,6 +13,7 @@ async function forgot(e){
     .then(res => {
         console.log(res);
         email.value = '';
+        alert('Reset link sent on your mail id');
     })
     .catch(err => {
         console.log(err);

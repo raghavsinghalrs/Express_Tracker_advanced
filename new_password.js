@@ -24,6 +24,7 @@ async function newpassword(e) {
         pwd.value = "";
         console.log('Password updated successfully', res.data);
         window.location.href = "/loginPage.html"
+        alert('Password updated!');
     } catch (err) {
         console.error('Error updating password', err);
     }

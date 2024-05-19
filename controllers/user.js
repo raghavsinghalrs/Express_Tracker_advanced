@@ -25,7 +25,8 @@ const forgot = async (req, res) => {
                 res.status(401).json({ error: "Internal Server Error" });
             }
         }
-        else if(user_present && fetching_uuid.isactive){
+        else if(user_present){
+            await forgot_password.update({isactive : true}, {where : {id : fetching_uuid.id}});
             const ans = await sendmail(fetching_uuid.id);
             if(ans){
                 res.status(201).json({message : 'Message sent'})
@@ -93,12 +94,21 @@ const updatepassword = async(req,res) => {
         const existingUser = await User.findOne({where :  { id: user.userId }});
         if (existingUser) {
             const saltrounds = 10;
-            bcrypt.hash(password,saltrounds,async(err,hash) => {
-                console.log(err);
-                await User.update({password: hash}, {where : {id : existingUser.id}});
-                res.status(201).json({message: "Password Updated Successfully"});
-            })
-            await forgot_password.update({isactive : false}, {where : {id : uuid}});
+            bcrypt.hash(password, saltrounds, async (err, hash) => {
+                if (err) {
+                    console.error('Error hashing password:', err);
+                    res.status(500).json({ message: "Error updating password" });
+                    return;
+                }
+
+                try {
+                    await User.update({ password: hash }, { where: { id: existingUser.id } });
+                    res.status(201).json({ message: "Password Updated Successfully" });
+                } catch (updateErr) {
+                    console.error('Error updating user password in database:', updateErr);
+                    res.status(500).json({ message: "Error updating password" });
+                }
+            });
         }else{
             res.status(501).json({ error: "User not found" });
         }
@@ -120,9 +130,12 @@ const newuser = async(req,res) => {
         }
         const saltrounds = 10;
         bcrypt.hash(password,saltrounds,async(err,hash) => {
-            console.log(err);
+            if (err) {
+                console.error('Error hashing password:', err);
+                res.status(500).json({ message: "Error updating password" });
+                return;
+            }
             await User.create({name : name, email : email, password: hash});
-
             res.status(201).json({message: "Successfully created new user"});
         })
     }catch(err){
@@ -249,6 +262,19 @@ const leaderboarddata = async (req, res) => {
     }
 }
 
+const downloadsheet = async (req, res) => {
+    try{
+        const ispremium = await User.findAll({where : {id : req.user.id}});
+        if(ispremium.ispremiumuser){
+
+        }else{
+            res.status(401).json({message : 'Unauthorized'});
+        }
+    } catch(err) {
+
+    }
+}
+
 module.exports = {
     newuser,
     loginuser,
@@ -258,5 +284,6 @@ module.exports = {
     leaderboarddata,
     forgot,
     changepassword,
-    updatepassword
+    updatepassword,
+    downloadsheet
 }

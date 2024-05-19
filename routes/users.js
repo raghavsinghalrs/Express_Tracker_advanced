@@ -17,5 +17,6 @@ router.get('/leaderboard',Usercontroller.leaderboarddata);
 router.post('/forgotpassword',Usercontroller.forgot);
 router.get('/resetpassword/:uuid',Usercontroller.changepassword);
 router.post('/updatepassword',Usercontroller.updatepassword);
+router.get('/downloadsheet',authentication.authenticate,Usercontroller.downloadsheet);
  
 module.exports = router;
